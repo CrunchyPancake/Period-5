@@ -1,26 +1,48 @@
 const baseUrl = 'https://swapi.co/api/';
 const fetch = require('node-fetch')
 
-let getPlanetforFirstSpeciesInFirstMovieForPerson = function (id) {
+let getPlanetforFirstSpeciesInFirstMovieForPerson = function (id, cb) {
     let characterName, firstFilm, firstSpecies, homeWorld = '';
     fetch(baseUrl + 'people/' + id)
         .then(response => {
-            response.json().then(data => {
-                characterName = JSON.stringify(data.name);
-                console.log(characterName, firstFilm, firstSpecies, homeWorld)
-                
-            })
-        }).then( () => {
-        firstFilm = 'Find First Film'
-        }).then( () => {
-            firstSpecies = "Find First Species"
-        }).then( () => {
-            homeWorld = "Find Home Planet"
-        }).catch(err => {
-            console.log(err);
+            return response.json()
+                .then(data => {
+                    characterName = JSON.stringify(data.name);
+                    return data;
+                })
         })
+        .then((data) => {
+            let films = data.films.sort();
+            fetch(films[0])
+                .then(response => {
+                    return response.json()
+                        .then(data => {
+                            firstFilm = JSON.stringify(data.title);
+                            return data;
+                        })
+                }).then(data => {
+                    let species = data.species.sort();
+                    fetch(species[0])
+                        .then(response => {
+                            return response.json()
+                                .then(data => {
+                                    firstSpecies = JSON.stringify(data.name)
+                                    return data;
+                                })
+                        }).then(data => {
+                            let planet = data.homeworld;
+                            fetch(planet)
+                                .then(response => {
+                                    return response.json()
+                                        .then(data => {
+                                            homeWorld = JSON.stringify(data.name)
+                                            return cb(characterName, firstSpecies, firstFilm, homeWorld);
+                                        })
+                                })
+                        })
 
-    return;
+                })
+        })
 
 }
 module.exports = { getPlanetforFirstSpeciesInFirstMovieForPerson: getPlanetforFirstSpeciesInFirstMovieForPerson };

@@ -16,14 +16,9 @@ let asyncRequest = function (cb, wordCount) {
 }
 
 let sortData = (data, wordCount) => {
-    let result = [];
-    for (let i = 0; i < data.length; i++) {
-        for (let k = 0; k < data[i].length; k++) {
-            result.push(data[i][k]);
-        }
-    }
+    let flattenedData = [].concat.apply([], data);
 
-    return result.filter((el) => {
+    return flattenedData.filter((el) => {
         return el.title.split(" ").length === wordCount;
     })
         .map((el) => {
